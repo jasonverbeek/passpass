@@ -11,6 +11,44 @@ struct Args {
     confirm: bool,
 }
 
+trait AsKeySeq {
+    fn as_key_seq(self) -> String;
+}
+
+fn shift(c: char) -> String {
+    format!("{{+SHIFT}}{}{{-SHIFT}}", c)
+}
+
+impl AsKeySeq for char {
+    fn as_key_seq(self) -> String {
+        match self {
+            '/' => shift('/'),
+            '"' => shift('"'),
+            '+' => shift('+'),
+            '_' => shift('_'),
+            '{' => shift('['),
+            '}' => shift(']'),
+            ':' => shift(':'),
+            '<' => shift('<'),
+            '>' => shift('>'),
+            '?' => shift('?'),
+            '|' => shift('|'),
+            '~' => shift('~'),
+            '!' => shift('!'),
+            '@' => shift('@'),
+            '#' => shift('#'),
+            '$' => shift('$'),
+            '%' => shift('%'),
+            '^' => shift('^'),
+            '&' => shift('&'),
+            '*' => shift('*'),
+            '(' => shift('('),
+            ')' => shift(')'),
+            c => String::from(c),
+        }
+    }
+}
+
 fn main() {
     let args = Args::parse();
     let mut enigo = Enigo::new();
@@ -30,10 +68,15 @@ fn main() {
     };
     println!("Typing password from clipboard in 3s...");
     sleep(Duration::from_secs(3));
-    if let Err(_) = enigo.key_sequence_parse_try(&pass) {
-        eprintln!("Failed to send keystrokes to system");
-        process::exit(1);
+    let operations = pass
+        .chars()
+        .map(|i| i.as_key_seq())
+        .collect::<Vec<String>>();
+    let mut sequence: String = String::new();
+    for op in &operations {
+        sequence += op;
     }
+    enigo.key_sequence_parse(&sequence);
     if args.confirm {
         sleep(Duration::from_millis(100));
         enigo.key_click(enigo::Key::Return);
