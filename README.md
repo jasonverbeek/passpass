@@ -7,11 +7,13 @@ PassPass will take whatever is on the clipboard and type it out for you after a 
 After typing the password PassPass will clear the clipboard
 
 ### Extra Options
-Currently only 2 options are supported as a test, and could be expanded in the future when more features are added.
+Currently only 3 options are supported as a test, and could be expanded in the future when more features are added.
 
-`--no-clear` Will disable clearing the clipboard
+`--no-clear` Will disable clearing the clipboard (default: false)
 
-`--confirm` Will hit Return/Enter for you after typing the password
+`--confirm` Will hit Return/Enter for you after typing the password (default: false)
+
+`--countdown` Set the countdown in seconds before typing the password (default: 3)
 
 
 ## Security

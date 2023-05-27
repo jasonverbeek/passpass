@@ -9,6 +9,11 @@ struct Args {
     no_clear: bool,
     #[arg(short, long, help = "confirm password by automatically hitting Return")]
     confirm: bool,
+    #[arg(
+        long,
+        help = "countdown in seconds before starting to enter the password"
+    )]
+    countdown: Option<u64>,
 }
 
 trait AsKeySeq {
@@ -66,16 +71,14 @@ fn main() {
             process::exit(1);
         }
     };
-    println!("Typing password from clipboard in 3s...");
-    sleep(Duration::from_secs(3));
-    let operations = pass
+    let countdown = args.countdown.unwrap_or_else(|| 3);
+    println!("Typing password from clipboard in {}s...", countdown);
+    sleep(Duration::from_secs(countdown));
+    let sequence = pass
         .chars()
         .map(|i| i.as_key_seq())
-        .collect::<Vec<String>>();
-    let mut sequence: String = String::new();
-    for op in &operations {
-        sequence += op;
-    }
+        .reduce(|acc, i| acc + &i)
+        .unwrap_or_else(|| String::new());
     enigo.key_sequence_parse(&sequence);
     if args.confirm {
         sleep(Duration::from_millis(100));
